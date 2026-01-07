@@ -1,0 +1,38 @@
+graph TD
+    subgraph Environment
+        lob[Order Book]
+        matcher[Matching Engine]
+        history[Trade Tape]
+        timer[Clock]
+    end
+
+    subgraph Traders
+        mm[Market Maker]
+        taker[Liquidity Taker]
+        noise[Noise Trader]
+    end
+
+    subgraph Output
+        logger[Data Logger]
+        screen[Dashboard]
+    end
+
+    %% Sending orders to the book
+    mm -->|Add Order| lob
+    taker -->|Add Order| lob
+    noise -->|Random Order| lob
+    
+    %% Matching logic
+    lob -->|Check Match| matcher
+    matcher -->|Fill Msg| mm
+    matcher -->|Fill Msg| taker
+    matcher -->|Record Trade| history
+    
+    %% Visualization flow
+    history -->|Update| logger
+    lob -->|Snapshot| logger
+    logger -->|Draw| screen
+    
+    %% Time updates
+    timer -->|Tick| mm
+    timer -->|Tick| taker
